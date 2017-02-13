@@ -1,5 +1,5 @@
 # Tell CMake to create the helloworld executable
-add_executable(rts2-qt main.cpp rts2q_device.cpp rts2q_device.h)
+add_executable(rts2-qt main.cpp rts2q_device.cpp rts2q_device.h rts2q_cat.cpp rts2q_cat.h)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(rts2-qt Qt5::Widgets)

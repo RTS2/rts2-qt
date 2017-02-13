@@ -1,0 +1,26 @@
+/**
+ * Widget to display catalogues.
+ */
+
+#ifndef __RTS2Q_CAT__
+#define __RTS2Q_CAT__
+
+#include <QWidget>
+
+class Rts2QCat: public QWidget
+{
+	Q_OBJECT
+	public:
+		Rts2QCat(double ra, double dec, QWidget *parent = 0);
+
+	protected:
+		void paintEvent(QPaintEvent *event) override;
+
+	private:
+		double ra;
+		double dec;
+
+		QBrush background;
+};
+
+#endif // __RTS2Q_CAT__
