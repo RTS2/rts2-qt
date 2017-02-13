@@ -16,5 +16,5 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 	painter.setBrush(background);
-	painter.drawRectangle(QRect(10, 20, 80, 60));
+	painter.drawRect(QRect(10, 20, 80, 60));
 }
