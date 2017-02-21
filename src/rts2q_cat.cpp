@@ -10,6 +10,8 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent)
 	dec = _dec;
 
 	background = QBrush(QColor(0,0,255));
+
+	viz.runQuery(20,30);
 }
 
 void Rts2QCat::paintEvent(QPaintEvent *event)

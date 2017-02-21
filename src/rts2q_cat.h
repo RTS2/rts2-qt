@@ -5,6 +5,8 @@
 #ifndef __RTS2Q_CAT__
 #define __RTS2Q_CAT__
 
+#include "rts2q_vizier.h"
+
 #include <QWidget>
 
 class Rts2QCat: public QWidget
@@ -21,6 +23,8 @@ class Rts2QCat: public QWidget
 		double dec;
 
 		QBrush background;
+
+		Rts2QVizier viz;
 };
 
 #endif // __RTS2Q_CAT__
