@@ -9,6 +9,8 @@
 #include <QHostAddress>
 #include <QVector>
 
+#define MAX_LINE  200
+
 class Rts2QStar
 {
 	public:
@@ -27,6 +29,7 @@ class Rts2QVizier:public QObject
 
 	public slots:
 		void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+		void readyRead();
 		void replyFinished();
 
 	private:
@@ -37,6 +40,10 @@ class Rts2QVizier:public QObject
 		QNetworkRequest request;
 		QNetworkReply *reply;
 		QByteArray data;
+		char lineData[MAX_LINE];
+		char *lineStart;
+
+		void processLine();
 };
 
 #endif //!__RTS2Q_VIZIER
