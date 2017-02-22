@@ -10,7 +10,7 @@ int main(int argc, char **argv)
  Rts2QDevice dev("T0");
  dev.show();
 
- Rts2QCat cat(300,-30);
+ Rts2QCat cat(200,30);
  cat.show();
  
  return app.exec();

@@ -33,8 +33,8 @@ void Rts2QVizier::runQuery(double ra, double dec)
 
 	QUrlQuery query;
 	query.addQueryItem("-source", "I/305"); // catalogue name
-	query.addQueryItem("-c", QString("%1 %2").arg(ra/15.0).arg(dec));
-	query.addQueryItem("-c.rs", QString("%1").arg(30));
+	query.addQueryItem("-c", QString("%1 %2").arg(QString::number(ra/15.0,'f',10)).arg(dec));
+	query.addQueryItem("-c.rs", QString("%1").arg(300));
 	rurl.setQuery(query);
 
 	request.setUrl(rurl);
@@ -160,7 +160,7 @@ void Rts2QVizier::processLine()
 		}
 		QLocale loc("C");
 		bool ok;
-		Rts2QStar star(loc.toDouble(lineData + collLengths[0] + 1, &ok), loc.toDouble(lineData + collLengths[0] + collLengths[1] + 2), 1);
+		Rts2QStar star(loc.toDouble(lineData + collLengths[0] + 1, &ok) * 15.0, loc.toDouble(lineData + collLengths[0] + collLengths[1] + 2), 1);
 		qDebug() << "star ra " << star.ra << " " << star.dec << lineData + collLengths[0] + 1;
 
 		stars.append(star);
