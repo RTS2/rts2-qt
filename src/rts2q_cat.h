@@ -15,6 +15,9 @@ class Rts2QCat: public QWidget
 	public:
 		Rts2QCat(double ra, double dec, QWidget *parent = 0);
 
+	protected slots:
+		void starAdded();
+
 	protected:
 		void paintEvent(QPaintEvent *event) override;
 

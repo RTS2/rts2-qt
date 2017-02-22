@@ -11,12 +11,25 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent)
 
 	background = QBrush(QColor(0,0,255));
 
-	viz.runQuery(20,30);
+	connect(&viz, &Rts2QVizier::starAdded, this, &Rts2QCat::starAdded);
+
+	viz.runQuery(ra,dec);
+}
+
+void Rts2QCat::starAdded()
+{
+	qDebug() << "star added " << viz.stars.size();
+	repaint();
 }
 
 void Rts2QCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 	painter.setBrush(background);
-	painter.drawRect(QRect(10, 20, 80, 60));
+
+	for (auto it = viz.stars.begin(); it != viz.stars.end(); it++)
+	{
+		qDebug() << "paint " << (ra - it->ra) * 36000 << " " << (dec - it->dec) * 36000;
+		painter.drawEllipse(QPoint(100 + (ra - it->ra) * 36000, 100 + (dec - it->dec) * 36000), 5, 5);
+	}
 }
