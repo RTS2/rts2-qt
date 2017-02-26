@@ -2,7 +2,18 @@
 
 #include <QUrlQuery>
 #include <QLocale>
+
+#include <libnova/libnova.h>
 #include <math.h>
+
+Rts2QConditions::Rts2QConditions (double _ra0, double _dec0)
+{
+	ra0 = _ra0;
+	dec0 = _dec0;
+
+	cos_phi1 = cos (ln_deg_to_rad (dec0));
+	sin_phi1 = sin (ln_deg_to_rad (dec0));
+}
 
 Rts2QStar::Rts2QStar()
 {
@@ -16,6 +27,37 @@ Rts2QStar::Rts2QStar(double _ra, double _dec, float _mag)
 	ra = _ra;
 	dec = _dec;
 	mag = _mag;
+}
+
+void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double scale, double &x, double &y)
+{
+	double kp, phi, lam, rho;
+  
+	phi = ln_deg_to_rad (dec);
+	lam = ln_deg_to_rad (ra - conditions->ra0);
+
+	if (conditions->dec0 == 90)
+	{
+		rho = 2 * scale * sin (M_PI/4 - phi/2);
+		x =  rho * sin (lam);
+		y = -rho * cos (lam);
+	}
+	else if (conditions->dec0 == -90)
+	{
+		rho = 2 * scale * cos (M_PI/4 - phi/2);
+		x =  rho * sin (lam);
+		y =  rho * cos (lam);
+	}
+	else
+	{
+		double sin_phi = sin (phi);
+		double cos_phi = cos (phi);
+		double cos_lam = cos (lam);
+
+		kp = sqrt (2. / (1 + conditions->sin_phi1 * sin_phi + conditions->cos_phi1 * cos_phi * cos_lam));
+		x = scale * kp * cos (phi) * sin (lam);
+		y = scale * kp * (conditions->cos_phi1 * sin_phi - conditions->sin_phi1 * cos_phi * cos_lam);
+	}
 }
 
 Rts2QVizier::Rts2QVizier():QObject(), baseurl("http://vizier.u-strasbg.fr/viz-bin/asu-txt")
@@ -34,7 +76,7 @@ void Rts2QVizier::runQuery(double ra, double dec)
 	QUrlQuery query;
 	query.addQueryItem("-source", "I/305"); // catalogue name
 	query.addQueryItem("-c", QString("%1 %2").arg(QString::number(ra/15.0,'f',10)).arg(dec));
-	query.addQueryItem("-c.rs", QString("%1").arg(300));
+	query.addQueryItem("-c.rs", QString("%1").arg(500));
 	rurl.setQuery(query);
 
 	request.setUrl(rurl);
@@ -48,6 +90,36 @@ void Rts2QVizier::runQuery(double ra, double dec)
 	connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 	connect(reply, SIGNAL(readyRead()), this, SLOT(readyRead()));
 	connect(reply, SIGNAL(finished()), this, SLOT(replyFinished()));
+}
+
+void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double scale, double x, double y, double &ra, double &dec)
+{
+	double phi, lam, rho, c;
+
+	rho = sqrt(x * x + y * y);
+
+	if (rho != 0.0)
+	{
+		c = 2 * asin (rho / (2 * scale));
+    
+		phi = asin (cos(c) * conditions->sin_phi1 + y * sin(c) * conditions->cos_phi1 / rho);
+    
+		if (conditions->dec0 == 90)
+			lam = atan2 (x, -y);
+		else if (conditions->dec0 == -90)
+			lam = atan2 (x, y);
+		else
+			lam = atan2 (x * sin(c), rho * conditions->cos_phi1 * cos(c) - y * conditions->sin_phi1 * sin(c));
+	}
+	else
+	{
+		phi = ln_rad_to_deg (conditions->dec0);
+		lam = 0.0;
+	}
+  
+	dec = ln_rad_to_deg (phi);
+	ra = ln_rad_to_deg (lam) + conditions->ra0;
+	ra = ln_range_degrees (ra);
 }
 
 void Rts2QVizier::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)

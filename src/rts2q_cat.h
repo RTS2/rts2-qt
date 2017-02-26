@@ -20,13 +20,17 @@ class Rts2QCat: public QWidget
 
 	protected:
 		void paintEvent(QPaintEvent *event) override;
+		void mouseMoveEvent(QMouseEvent *event) override;
+		void mousePressEvent(QMouseEvent *event) override;
 
 	private:
 		double ra;
 		double dec;
 
 		QBrush background;
+		QBrush origin;
 
+		Rts2QConditions conditions;
 		Rts2QVizier viz;
 };
 

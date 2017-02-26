@@ -11,11 +11,25 @@
 
 #define MAX_LINE  200
 
+class Rts2QConditions
+{
+	public:
+		Rts2QConditions (double _ra0, double _dec0);
+
+		double ra0;
+		double dec0;
+
+		double sin_phi1;
+		double cos_phi1;
+};
+
 class Rts2QStar
 {
 	public:
 		Rts2QStar ();
 		Rts2QStar (double _ra, double _dec, float _mag);
+
+		void azimuthalEqualArea (Rts2QConditions *conditions, double scale, double &x, double &y);
 
 		double ra;
 		double dec;
@@ -32,6 +46,7 @@ class Rts2QVizier:public QObject
 
 		QVector <Rts2QStar> stars;
 
+		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double scale, double x, double y, double &ra, double &dec);
 
 	signals:
 		void starAdded();
@@ -42,7 +57,6 @@ class Rts2QVizier:public QObject
 		void replyFinished();
 
 	private:
-
 		QNetworkAccessManager networkManager;
 		QUrl baseurl;
 		QNetworkRequest request;
