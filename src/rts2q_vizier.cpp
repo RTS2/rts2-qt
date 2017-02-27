@@ -13,23 +13,26 @@ Rts2QConditions::Rts2QConditions (double _ra0, double _dec0)
 
 	cos_phi1 = cos (ln_deg_to_rad (dec0));
 	sin_phi1 = sin (ln_deg_to_rad (dec0));
+
+	scale = 20 * 3600;
 }
 
 Rts2QStar::Rts2QStar()
 {
+	name = QString();
 	ra = NAN;
 	dec = NAN;
 	mag = NAN;
 }
 
-Rts2QStar::Rts2QStar(double _ra, double _dec, float _mag)
+Rts2QStar::Rts2QStar(QString _name, double _ra, double _dec, float _mag) : name(_name)
 {
 	ra = _ra;
 	dec = _dec;
 	mag = _mag;
 }
 
-void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double scale, double &x, double &y)
+void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double &x, double &y)
 {
 	double kp, phi, lam, rho;
   
@@ -38,13 +41,13 @@ void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double scale, do
 
 	if (conditions->dec0 == 90)
 	{
-		rho = 2 * scale * sin (M_PI/4 - phi/2);
+		rho = 2 * conditions->scale * sin (M_PI/4 - phi/2);
 		x =  rho * sin (lam);
 		y = -rho * cos (lam);
 	}
 	else if (conditions->dec0 == -90)
 	{
-		rho = 2 * scale * cos (M_PI/4 - phi/2);
+		rho = 2 * conditions->scale * cos (M_PI/4 - phi/2);
 		x =  rho * sin (lam);
 		y =  rho * cos (lam);
 	}
@@ -55,8 +58,8 @@ void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double scale, do
 		double cos_lam = cos (lam);
 
 		kp = sqrt (2. / (1 + conditions->sin_phi1 * sin_phi + conditions->cos_phi1 * cos_phi * cos_lam));
-		x = scale * kp * cos (phi) * sin (lam);
-		y = scale * kp * (conditions->cos_phi1 * sin_phi - conditions->sin_phi1 * cos_phi * cos_lam);
+		x = conditions->scale * kp * cos (phi) * sin (lam);
+		y = conditions->scale * kp * (conditions->cos_phi1 * sin_phi - conditions->sin_phi1 * cos_phi * cos_lam);
 	}
 }
 
@@ -75,7 +78,7 @@ void Rts2QVizier::runQuery(double ra, double dec)
 
 	QUrlQuery query;
 	query.addQueryItem("-source", "I/305"); // catalogue name
-	query.addQueryItem("-c", QString("%1 %2").arg(QString::number(ra/15.0,'f',10)).arg(dec));
+	query.addQueryItem("-c", QString("%1 %2").arg(ra,0,'f',10).arg(dec,0,'f',10));
 	query.addQueryItem("-c.rs", QString("%1").arg(500));
 	rurl.setQuery(query);
 
@@ -92,7 +95,7 @@ void Rts2QVizier::runQuery(double ra, double dec)
 	connect(reply, SIGNAL(finished()), this, SLOT(replyFinished()));
 }
 
-void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double scale, double x, double y, double &ra, double &dec)
+void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec)
 {
 	double phi, lam, rho, c;
 
@@ -100,7 +103,7 @@ void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double 
 
 	if (rho != 0.0)
 	{
-		c = 2 * asin (rho / (2 * scale));
+		c = 2 * asin (rho / (2 * conditions->scale));
     
 		phi = asin (cos(c) * conditions->sin_phi1 + y * sin(c) * conditions->cos_phi1 / rho);
     
@@ -120,6 +123,28 @@ void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double 
 	dec = ln_rad_to_deg (phi);
 	ra = ln_rad_to_deg (lam) + conditions->ra0;
 	ra = ln_range_degrees (ra);
+}
+
+Rts2QStar Rts2QVizier::getClosest(double ra, double dec)
+{
+	double dist = NAN;
+	auto found = stars.begin();
+	struct ln_equ_posn orig;
+	orig.ra = ra;
+	orig.dec = dec;
+	for (auto si = stars.begin(); si != stars.end(); si++)
+	{
+		struct ln_equ_posn spos;
+		spos.ra = si->ra;
+		spos.dec = si->dec;
+		double sd = ln_get_angular_separation(&orig, &spos);
+		if (sd < dist || std::isnan(dist))
+		{
+			found = si;
+			dist = sd;
+		}
+	}
+	return *(found);
 }
 
 void Rts2QVizier::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -232,7 +257,7 @@ void Rts2QVizier::processLine()
 		}
 		QLocale loc("C");
 		bool ok;
-		Rts2QStar star(loc.toDouble(lineData + collLengths[0] + 1, &ok) * 15.0, loc.toDouble(lineData + collLengths[0] + collLengths[1] + 2), 1);
+		Rts2QStar star(lineData, loc.toDouble(lineData + collLengths[0] + 1, &ok), loc.toDouble(lineData + collLengths[0] + collLengths[1] + 2), 1);
 		qDebug() << "star ra " << star.ra << " " << star.dec << lineData + collLengths[0] + 1;
 
 		stars.append(star);

@@ -21,16 +21,22 @@ class Rts2QConditions
 
 		double sin_phi1;
 		double cos_phi1;
+
+		double scale;
+
+		void changeScale(double change) { scale += change; }
+
 };
 
 class Rts2QStar
 {
 	public:
 		Rts2QStar ();
-		Rts2QStar (double _ra, double _dec, float _mag);
+		Rts2QStar (QString _name, double _ra, double _dec, float _mag);
 
-		void azimuthalEqualArea (Rts2QConditions *conditions, double scale, double &x, double &y);
+		void azimuthalEqualArea (Rts2QConditions *conditions, double &x, double &y);
 
+		QString name;
 		double ra;
 		double dec;
 		float mag;
@@ -46,7 +52,8 @@ class Rts2QVizier:public QObject
 
 		QVector <Rts2QStar> stars;
 
-		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double scale, double x, double y, double &ra, double &dec);
+		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec);
+		Rts2QStar getClosest(double x, double y);
 
 	signals:
 		void starAdded();
