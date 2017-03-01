@@ -31,9 +31,12 @@ class Rts2QCat: public QWidget
 
 		QBrush background;
 		QBrush origin;
+		QBrush selected;
 
 		Rts2QConditions conditions;
 		Rts2QVizier viz;
+
+		QVector <QString> selectedStars;
 };
 
 #endif // __RTS2Q_CAT__

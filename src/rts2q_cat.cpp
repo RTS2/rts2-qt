@@ -13,6 +13,7 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), 
 
 	background = QBrush(QColor(0,0,255));
 	origin = QBrush(QColor(255,0,0));
+	selected = QBrush(QColor(0,255,0));
 
 	connect(&viz, &Rts2QVizier::starAdded, this, &Rts2QCat::starAdded);
 
@@ -39,6 +40,11 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 		if (!std::isnan(it->mag))
 		{
 			double m = 22 - it->mag;
+			if (selectedStars.contains(it->name))
+				painter.setBrush(selected);
+			else
+				painter.setBrush(origin);
+
 			painter.drawEllipse(QPointF(300 + x, 300 + y), m, m);
 		}
 	}
@@ -62,9 +68,12 @@ void Rts2QCat::mousePressEvent(QMouseEvent *event)
 		struct ln_equ_posn pos;
 		viz.inverseAzimuthalEqualArea(&conditions, event->pos().x() - 300, event->pos().y() - 300, pos.ra, pos.dec);
 		Rts2QStar closest = viz.getClosest(pos.ra, pos.dec);
-		QString status = QString("%1 %2 %3").arg(closest.name).arg(pos.ra).arg(pos.dec);
+		QString title = tr("Star %1").arg(closest.name);
+		QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest.name).arg(pos.ra).arg(pos.dec).arg(closest.mag);
 
-		QMessageBox::question(this, tr("Position"), status);
+		selectedStars.append(closest.name);
+
+		QMessageBox::information(this, title, status);
 	}
 }
 
