@@ -193,51 +193,49 @@ void Rts2QVizier::processLine()
 		// find spaces
 		if (lineSeen == START)
 		{
-			int lastC = 0;
 			int i = 0;
 			for (i = 0; i < strlen(lineData); i++)
 			{
 				if (lineData[i] == ' ')
 				{
-					collLengths.append(i - lastC);
-					lastC = i + 1;
+					collIndex.append(i);
 					collumns.append(QString());
 				}
 			}
-			collLengths.append(i - lastC);
+			collIndex.append(i);
 			collumns.append(QString());
-			lineSeen = COLLUNS;
+			lineSeen = COLLUMNS;
 		}
-		else if (lineSeen == COLLUNS)
+		else if (lineSeen == COLLUMNS)
 		{
 			// dump collumns
-			auto il = collLengths.begin();
+			auto il = collIndex.begin();
 			auto in = collumns.begin();
-			for (; il != collLengths.end() && in != collumns.end(); il++, in++)
+			for (; il != collIndex.end() && in != collumns.end(); il++, in++)
 			{
-				qDebug() << "collumn length " << *il << " " << *in;
+				qDebug() << "collumn index " << *il << " " << *in;
 			}
 			lineSeen = DATA;
 		}
 	}
-	else if (lineSeen == COLLUNS)
+	else if (lineSeen == COLLUMNS)
 	{
-		int i = 0;
-		int lastL = 0;
 		qDebug() << lineData;
-		for (auto iter = collLengths.begin(); iter != collLengths.end(); iter++)
+		int lastI = 0;
+		int i = 0;
+		for (auto iter = collIndex.begin(); iter != collIndex.end(); iter++)
 		{
-			int cl = collLengths[i];
-			while (cl > 0 && lineData[lastL + cl] == ' ')
+			int cl = *iter;
+			while (cl > lastI && lineData[cl] == ' ')
 			{
-				lineData[lastL + cl] = '\0';
+				lineData[cl] = '\0';
 				cl--;
 			}
-			if (cl >= 0 && lineData[lastL] != ' ')
+			if (cl >= lastI && lineData[lastI] != ' ')
 			{
-				collumns[i].append(lineData + lastL);
+				collumns[i].append(lineData + lastI);
 			}
-			lastL += collLengths[i] + 1;
+			lastI = *iter + 1;
 			i++;
 		}
 	}
@@ -249,16 +247,20 @@ void Rts2QVizier::processLine()
 			return;
 		}
 		qDebug() << lineData;
-		int tl = 0;
-		for (auto il = collLengths.begin(); il != collLengths.end(); il++)
+		for (auto il = collIndex.begin(); il != collIndex.end(); il++)
 		{
-			lineData[tl + *il] = '\0';
-			tl += *il + 1;
+			lineData[*il] = '\0';
 		}
 		QLocale loc("C");
 		bool ok;
-		Rts2QStar star(lineData, loc.toDouble(lineData + collLengths[0] + 1, &ok), loc.toDouble(lineData + collLengths[0] + collLengths[1] + 2), 1);
-		qDebug() << "star ra " << star.ra << " " << star.dec << lineData + collLengths[0] + 1;
+		float m;
+		if (lineData[collIndex[4] + 1] != ' ')
+			m = loc.toDouble(lineData + collIndex[4] + 1, &ok);
+		else
+			m = NAN;
+
+		Rts2QStar star(lineData, loc.toDouble(lineData + collIndex[0] + 1, &ok), loc.toDouble(lineData + collIndex[1] + 1), m);
+		qDebug() << "star ra " << star.ra << " dec " << star.dec << " mag " << m;
 
 		stars.append(star);
 

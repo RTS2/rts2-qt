@@ -71,12 +71,14 @@ class Rts2QVizier:public QObject
 		QByteArray data;
 		char lineData[MAX_LINE];
 		char *lineStart;
-		enum {START, COLLUNS, DATA, END} lineSeen;
+		enum {START, COLLUMNS, DATA, END} lineSeen;
 
 		QVector <QString> collumns;
-		QVector <int> collLengths;
+		QVector <int> collIndex;
 
 		void processLine();
+
+		int lineCollumn(int col);
 };
 
 #endif //!__RTS2Q_VIZIER

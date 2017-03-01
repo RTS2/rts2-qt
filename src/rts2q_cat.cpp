@@ -30,18 +30,17 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 
-	painter.begin(this);
-
 	painter.setBrush(origin);
 
 	for (auto it = viz.stars.begin(); it != viz.stars.end(); it++)
 	{
 		double x, y;
 		it->azimuthalEqualArea (&conditions, x, y);
-		qDebug() << "paint " << (ra - it->ra) * 360 << " " << (dec - it->dec) * 360 << " " << 300 + x << " " << 300 + y;
-
-		//#painter.drawEllipse(QPoint(300 + (ra - it->ra) * 360 * -3.5, 300 + (dec - it->dec) * 360 * -3.5), 5, 5);
-		painter.drawEllipse(QPoint(300 + x, 300 + y), 5, 5);
+		if (!std::isnan(it->mag))
+		{
+			double m = 22 - it->mag;
+			painter.drawEllipse(QPointF(300 + x, 300 + y), m, m);
+		}
 	}
 
 	painter.end();
@@ -53,7 +52,7 @@ void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 {
 	struct ln_equ_posn pos;
 	viz.inverseAzimuthalEqualArea(&conditions, event->pos().x() - 300, event->pos().y() - 300, pos.ra, pos.dec);
-	qDebug() << event->pos().x() << " " << event->pos().y() << " ra " << pos.ra << " dec " << pos.dec;
+	//qDebug() << event->pos().x() << " " << event->pos().y() << " ra " << pos.ra << " dec " << pos.dec;
 }
 
 void Rts2QCat::mousePressEvent(QMouseEvent *event)
