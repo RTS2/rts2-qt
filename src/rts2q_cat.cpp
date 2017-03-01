@@ -40,7 +40,8 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 		it->azimuthalEqualArea (&conditions, x, y);
 		qDebug() << "paint " << (ra - it->ra) * 360 << " " << (dec - it->dec) * 360 << " " << 300 + x << " " << 300 + y;
 
-		painter.drawEllipse(QPoint(300 + (ra - it->ra) * 360 * -3.5, 300 + (dec - it->dec) * 360 * -3.5), 5, 5);
+		//#painter.drawEllipse(QPoint(300 + (ra - it->ra) * 360 * -3.5, 300 + (dec - it->dec) * 360 * -3.5), 5, 5);
+		painter.drawEllipse(QPoint(300 + x, 300 + y), 5, 5);
 	}
 
 	painter.end();
@@ -72,4 +73,19 @@ void Rts2QCat::wheelEvent(QWheelEvent *event)
 {
 	conditions.changeScale(event->delta() * 100);
 	repaint();
+}
+
+void Rts2QCat::keyPressEvent(QKeyEvent *event)
+{
+	switch (event->key())
+	{
+		case Qt::Key_Plus:
+			conditions.changeScale(100);
+			repaint();
+			break;
+		case Qt::Key_Minus:
+			conditions.changeScale(-100);
+			repaint();
+			break;
+	}
 }
