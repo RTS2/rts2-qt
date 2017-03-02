@@ -55,6 +55,8 @@ class Rts2QVizier:public QObject
 		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec);
 		Rts2QStar getClosest(double x, double y);
 
+		bool findStarName(QString name);
+
 	signals:
 		void starAdded();
 
@@ -77,8 +79,6 @@ class Rts2QVizier:public QObject
 		QVector <int> collIndex;
 
 		void processLine();
-
-		int lineCollumn(int col);
 };
 
 #endif //!__RTS2Q_VIZIER

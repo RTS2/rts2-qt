@@ -72,7 +72,7 @@ Rts2QVizier::Rts2QVizier():QObject(), baseurl("http://vizier.u-strasbg.fr/viz-bi
 void Rts2QVizier::runQuery(double ra, double dec)
 {
 	if (reply)
-		delete reply;
+		return;
 
 	QUrl rurl(baseurl);
 
@@ -147,6 +147,16 @@ Rts2QStar Rts2QVizier::getClosest(double ra, double dec)
 	return *(found);
 }
 
+bool Rts2QVizier::findStarName(QString name)
+{
+	for (auto it = stars.begin(); it != stars.end(); it++)
+	{
+		if (it->name == name)
+			return true;
+	}
+	return false;
+}
+
 void Rts2QVizier::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
 	qDebug() << bytesReceived << "/" << bytesTotal;
@@ -181,6 +191,7 @@ void Rts2QVizier::replyFinished()
 	readyRead();
 
 	reply->deleteLater();
+	reply = NULL;
 }
 
 void Rts2QVizier::processLine()
@@ -259,11 +270,16 @@ void Rts2QVizier::processLine()
 		else
 			m = NAN;
 
-		Rts2QStar star(lineData, loc.toDouble(lineData + collIndex[0] + 1, &ok), loc.toDouble(lineData + collIndex[1] + 1), m);
-		qDebug() << "star ra " << star.ra << " dec " << star.dec << " mag " << m;
+		QString name = lineData;
+		if (findStarName(name) == false)
+		{
+			Rts2QStar star(lineData, loc.toDouble(lineData + collIndex[0] + 1, &ok), loc.toDouble(lineData + collIndex[1] + 1), m);
+			qDebug() << "star ra " << star.ra << " dec " << star.dec << " mag " << m;
 
-		stars.append(star);
+			stars.append(star);
 
-		emit starAdded();
+			emit starAdded();
+		}
 	}
 }
+

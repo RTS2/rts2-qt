@@ -22,6 +22,7 @@ class Rts2QCat: public QWidget
 		void paintEvent(QPaintEvent *event) override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		void mousePressEvent(QMouseEvent *event) override;
+		void mouseReleaseEvent(QMouseEvent *event) override;
 		void wheelEvent(QWheelEvent *event) override;
 		void keyPressEvent(QKeyEvent *event) override;
 
@@ -37,6 +38,14 @@ class Rts2QCat: public QWidget
 		Rts2QVizier viz;
 
 		QVector <QString> selectedStars;
+
+		void paintStars(QPainter *painter);
+		void paintAG(QPainter *painter);
+
+		int lastX;
+		int lastY;
+
+		bool panning;
 };
 
 #endif // __RTS2Q_CAT__

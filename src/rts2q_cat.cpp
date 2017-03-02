@@ -11,6 +11,8 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), 
 	ra = _ra;
 	dec = _dec;
 
+	panning = false;
+
 	background = QBrush(QColor(0,0,255));
 	origin = QBrush(QColor(255,0,0));
 	selected = QBrush(QColor(0,255,0));
@@ -31,23 +33,8 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 
-	painter.setBrush(origin);
-
-	for (auto it = viz.stars.begin(); it != viz.stars.end(); it++)
-	{
-		double x, y;
-		it->azimuthalEqualArea (&conditions, x, y);
-		if (!std::isnan(it->mag))
-		{
-			double m = 22 - it->mag;
-			if (selectedStars.contains(it->name))
-				painter.setBrush(selected);
-			else
-				painter.setBrush(origin);
-
-			painter.drawEllipse(QPointF(300 + x, 300 + y), m, m);
-		}
-	}
+	paintStars(&painter);
+	paintAG(&painter);
 
 	painter.end();
 
@@ -57,23 +44,55 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 {
 	struct ln_equ_posn pos;
-	viz.inverseAzimuthalEqualArea(&conditions, event->pos().x() - 300, event->pos().y() - 300, pos.ra, pos.dec);
-	//qDebug() << event->pos().x() << " " << event->pos().y() << " ra " << pos.ra << " dec " << pos.dec;
+	viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
+	//qDebug() << event->x() << " " << event->y() << " ra " << pos.ra << " dec " << pos.dec;
+	if (panning)
+	{
+		ra += (lastX - event->x()) / 3600.0;
+		dec += (lastY - event->y()) / 3600.0;
+		qDebug() << "new ra " << ra << " " << dec;
+		viz.runQuery(ra,dec);
+
+		lastX = event->x();
+		lastY = event->y();
+	}
 }
 
 void Rts2QCat::mousePressEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::MidButton)
+	switch (event->button())
 	{
-		struct ln_equ_posn pos;
-		viz.inverseAzimuthalEqualArea(&conditions, event->pos().x() - 300, event->pos().y() - 300, pos.ra, pos.dec);
-		Rts2QStar closest = viz.getClosest(pos.ra, pos.dec);
-		QString title = tr("Star %1").arg(closest.name);
-		QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest.name).arg(pos.ra).arg(pos.dec).arg(closest.mag);
+		case Qt::RightButton:
+		{
+			struct ln_equ_posn pos;
+			viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
+			Rts2QStar closest = viz.getClosest(pos.ra, pos.dec);
+			QString title = tr("Star %1").arg(closest.name);
+			QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest.name).arg(pos.ra).arg(pos.dec).arg(closest.mag);
 
-		selectedStars.append(closest.name);
+			selectedStars.append(closest.name);
 
-		QMessageBox::information(this, title, status);
+			QMessageBox::information(this, title, status);
+			break;
+		}
+
+		case Qt::MidButton:
+		{
+			lastX = event->x();
+			lastY = event->y();
+			panning = true;
+			break;
+		}
+	}
+}
+
+void Rts2QCat::mouseReleaseEvent(QMouseEvent *event)
+{
+	switch (event->button())
+	{
+		case Qt::MidButton:
+			panning = false;
+			break;
 	}
 }
 
@@ -96,4 +115,49 @@ void Rts2QCat::keyPressEvent(QKeyEvent *event)
 			repaint();
 			break;
 	}
+}
+
+void Rts2QCat::paintStars(QPainter *painter)
+{
+	painter->setPen(QColor(255,0,0));
+
+	for (auto it = viz.stars.begin(); it != viz.stars.end(); it++)
+	{
+		double x, y;
+		it->azimuthalEqualArea (&conditions, x, y);
+		if (!std::isnan(it->mag))
+		{
+			double m = 22 - it->mag;
+			if (selectedStars.contains(it->name))
+				painter->setBrush(selected);
+			else
+				painter->setBrush(Qt::NoBrush);
+
+			painter->drawRect(QRectF(300 + x, 300 + y, m, m));
+		}
+	}
+}
+
+void Rts2QCat::paintAG(QPainter *painter)
+{
+	int cx = 300;
+	int cy = 300;
+	painter->setPen(QColor(0,255,0));
+
+	QPainterPath ag;
+	ag.moveTo(100,100);
+	ag.lineTo(-100,100);
+	ag.lineTo(-100,80);
+	ag.lineTo(80,80);
+	ag.lineTo(80,-80);
+	ag.lineTo(-100,-80);
+	ag.lineTo(-100,-100);
+	ag.lineTo(100,-100);
+	ag.lineTo(100,100);
+
+	painter->translate(QPointF(cx,cy));
+	painter->rotate(75);
+	painter->scale(1.2,1.2);
+
+	painter->drawPath(ag);
 }
