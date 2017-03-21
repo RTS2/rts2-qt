@@ -16,7 +16,7 @@ Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent),
 	m_table = new QTableWidget(0,2);
 	m_table->setItem(0,0,new QTableWidgetItem("test"));
 
-	m_button = new QPushButton("Test");
+	m_button = new QPushButton(tr("&Retrieve"));
 	m_button->setGeometry(QRect(QPoint(100,100), QSize(200,50)));
 
 	m_layout->addWidget(m_table);
@@ -71,6 +71,7 @@ void Rts2QDevice::replyFinished(QNetworkReply *reply)
 	{
 		m_table->insertRow(m_table->rowCount());
 		m_table->setItem(r, 0, new QTableWidgetItem(val));
+		m_table->setItem(r, 1, new QTableWidgetItem(dArray[val].toString()));
 		r++;
 	};
 

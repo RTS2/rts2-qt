@@ -36,6 +36,8 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 	paintStars(&painter);
 	paintAG(&painter);
 
+	painter.drawImage(20, 20, fi);
+
 	painter.end();
 
 	QWidget::paintEvent(event);

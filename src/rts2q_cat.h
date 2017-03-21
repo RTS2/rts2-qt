@@ -6,6 +6,7 @@
 #define __RTS2Q_CAT__
 
 #include "rts2q_vizier.h"
+#include "rts2q_fits.h"
 
 #include <QWidget>
 
@@ -41,6 +42,8 @@ class Rts2QCat: public QWidget
 
 		void paintStars(QPainter *painter);
 		void paintAG(QPainter *painter);
+
+		QFitsImage fi;
 
 		int lastX;
 		int lastY;

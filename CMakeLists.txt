@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
-project(testproject)
+project(rts2-qt)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -15,5 +15,3 @@ find_package(Qt5Network)
 find_library(NOVA nova)
 
 add_subdirectory(src)
-
-
