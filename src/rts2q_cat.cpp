@@ -51,7 +51,7 @@ void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 {
 	struct ln_equ_posn pos;
 	viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
-	qDebug() << event->x() << " " << event->y() << " b " << event->buttons() << " ra " << pos.ra << " dec " << pos.dec;
+	//qDebug() << event->x() << " " << event->y() << " b " << event->buttons() << " ra " << pos.ra << " dec " << pos.dec;
 	switch (event->buttons())
 	{
 		case Qt::MidButton:
@@ -65,13 +65,13 @@ void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 			break;
 
 		case Qt::LeftButton:
-			qDebug() << "left " << imgMin << " " << imgMax;
-			imgMin -= lastX - event->x();
-			imgMax += lastY - event->y();
-			qDebug() << "left2 " << imgMin << " " << imgMax;
-			fi.scaleData(imgMin, imgMax, LINEAR);
+		{
+			uint16_t newMin = imgMin + (imgMax - imgMax) * (float)(width() - event->x()) / width();
+			uint16_t newMax = imgMax - (imgMax - imgMin) * (float)(height() - event->y()) / height();
+			fi.scaleData(newMin, newMax, LINEAR);
 			repaint();
 			break;
+		}
 	}
 }
 
