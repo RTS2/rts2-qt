@@ -9,6 +9,8 @@
 #include "rts2q_fits.h"
 
 #include <QWidget>
+#include <QMenu>
+#include <QSpinBox>
 
 class Rts2QCat: public QWidget
 {
@@ -18,6 +20,8 @@ class Rts2QCat: public QWidget
 
 	protected slots:
 		void starAdded();
+		void showHistogram();
+		void histogramApply();
 
 	protected:
 		void paintEvent(QPaintEvent *event) override;
@@ -50,6 +54,11 @@ class Rts2QCat: public QWidget
 
 		int lastX;
 		int lastY;
+
+		QMenu contextMenu;
+
+		QSpinBox minSpin;
+		QSpinBox maxSpin;
 };
 
 #endif // __RTS2Q_CAT__

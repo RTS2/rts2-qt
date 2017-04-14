@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <QImage>
 #include <QPainter>
 
@@ -8,8 +9,9 @@ typedef enum {
 	LOG
 } ScaleType;
 
-class QFitsImage
+class QFitsImage:public QObject
 {
+	Q_OBJECT
 	public:
 		QFitsImage();
 		~QFitsImage();
@@ -18,6 +20,8 @@ class QFitsImage
 		void scaleData(float min, float max, ScaleType type);
 
 		void drawImage(QPainter *painter, float x, float y);
+
+		void showHistogram(QWidget *parent);
 
 	private:
 		int bitpix;

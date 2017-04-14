@@ -2,11 +2,19 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMessageBox>
+#include <QDialog>
+#include <QWidget>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QDialogButtonBox>
+#include <QPushButton>
+
 #include <libnova/libnova.h>
 
 #include "rts2q_cat.h"
 
-Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), conditions (_ra, _dec)
+Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), conditions(_ra, _dec), contextMenu(this)
 {
 	ra = _ra;
 	dec = _dec;
@@ -19,17 +27,70 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), 
 
 	setMouseTracking(true);
 
-	viz.runQuery(ra,dec);
+	//viz.runQuery(ra,dec);
 
 	imgMin = 400;
 	imgMax = 2000;
 
 	fi.loadFITS("test.fits");
 	fi.scaleData(imgMin, imgMax, LINEAR);
+
+	minSpin.setRange(0,0xFFFF);
+	maxSpin.setRange(0,0xFFFF);
+
+	QAction *ma = new QAction(tr("&Histogram"), this);
+
+	contextMenu.addAction(ma);
+	connect(ma, &QAction::triggered, this, &Rts2QCat::showHistogram);
 }
 
 void Rts2QCat::starAdded()
 {
+	repaint();
+}
+
+void Rts2QCat::showHistogram()
+{
+	QDialog *wind = new QDialog(this);
+	wind->setWindowTitle(tr("Histogram"));
+
+	QWidget *controlBox = new QWidget();
+
+	QGridLayout *controlLayout = new QGridLayout();
+
+	controlLayout->addWidget(new QLabel(tr("Min:")),0,0);
+	controlLayout->addWidget(&minSpin,0,1);
+	controlLayout->addWidget(new QLabel(tr("Max:")),0,2);
+	controlLayout->addWidget(&maxSpin,0,3);
+
+	minSpin.setValue(imgMin);
+	maxSpin.setValue(imgMax);
+
+	controlBox->setLayout(controlLayout);
+
+	QVBoxLayout *mainBox = new QVBoxLayout();
+
+	mainBox->addWidget(controlBox);
+
+	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
+	mainBox->addWidget(buttonBox);
+
+	QPushButton* applyButton = buttonBox->button(QDialogButtonBox::Apply);
+
+	connect(applyButton, SIGNAL(clicked()), this, SLOT(histogramApply()));
+
+	wind->setLayout(mainBox);
+
+	wind->show();
+}
+
+void Rts2QCat::histogramApply()
+{
+	imgMin = minSpin.value();
+	imgMax = maxSpin.value();
+
+	fi.scaleData(minSpin.value(), maxSpin.value(), LINEAR);
+
 	repaint();
 }
 
@@ -81,22 +142,9 @@ void Rts2QCat::mousePressEvent(QMouseEvent *event)
 	{
 		case Qt::RightButton:
 		{
-			struct ln_equ_posn pos;
-			viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
-			Rts2QStar* closest = viz.getClosest(pos.ra, pos.dec);
-			if (closest == NULL)
-			{
-				QMessageBox::warning(this, tr("Cannot find any star!"), tr("Probably star catalogue was not loaded"));
-			}
-			else
-			{
-				QString title = tr("Star %1").arg(closest->name);
-				QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest->name).arg(pos.ra).arg(pos.dec).arg(closest->mag);
-
-				selectedStars.append(closest->name);
-
-				QMessageBox::information(this, title, status);
-			}
+			contextMenu.hide();
+			contextMenu.move(event->globalX(), event->globalY());
+			contextMenu.show();
 			break;
 		}
 

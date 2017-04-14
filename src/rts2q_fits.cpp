@@ -1,4 +1,5 @@
 #include <QDebug>
+
 #include "fitsio.h"
 
 #include "rts2q_fits.h"
@@ -93,4 +94,8 @@ void QFitsImage::drawImage(QPainter *painter, float x, float y)
 		return;
 	}
 	painter->drawImage(x, y, *image);
+}
+
+void QFitsImage::showHistogram(QWidget *parent)
+{
 }
