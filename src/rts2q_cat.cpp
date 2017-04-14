@@ -33,10 +33,10 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 
+	fi.drawImage(&painter, -200, -200);
+
 	paintStars(&painter);
 	paintAG(&painter);
-
-	painter.drawImage(20, 20, fi);
 
 	painter.end();
 
@@ -68,13 +68,20 @@ void Rts2QCat::mousePressEvent(QMouseEvent *event)
 		{
 			struct ln_equ_posn pos;
 			viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
-			Rts2QStar closest = viz.getClosest(pos.ra, pos.dec);
-			QString title = tr("Star %1").arg(closest.name);
-			QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest.name).arg(pos.ra).arg(pos.dec).arg(closest.mag);
+			Rts2QStar* closest = viz.getClosest(pos.ra, pos.dec);
+			if (closest == NULL)
+			{
+				QMessageBox::warning(this, tr("Cannot find any star!"), tr("Probably star catalogue was not loaded"));
+			}
+			else
+			{
+				QString title = tr("Star %1").arg(closest->name);
+				QString status = tr("Star %1 RA %2 DEC %3 magnitude %4").arg(closest->name).arg(pos.ra).arg(pos.dec).arg(closest->mag);
 
-			selectedStars.append(closest.name);
+				selectedStars.append(closest->name);
 
-			QMessageBox::information(this, title, status);
+				QMessageBox::information(this, title, status);
+			}
 			break;
 		}
 
@@ -158,8 +165,8 @@ void Rts2QCat::paintAG(QPainter *painter)
 	ag.lineTo(100,100);
 
 	painter->translate(QPointF(cx,cy));
-	painter->rotate(75);
-	painter->scale(1.2,1.2);
+//	painter->rotate(75);
+//	painter->scale(1.2,1.2);
 
 	painter->drawPath(ag);
 }

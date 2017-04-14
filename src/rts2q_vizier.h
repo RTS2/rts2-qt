@@ -53,7 +53,7 @@ class Rts2QVizier:public QObject
 		QVector <Rts2QStar> stars;
 
 		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec);
-		Rts2QStar getClosest(double x, double y);
+		Rts2QStar* getClosest(double x, double y);
 
 		bool findStarName(QString name);
 

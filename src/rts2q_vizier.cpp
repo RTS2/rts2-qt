@@ -125,10 +125,10 @@ void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double 
 	ra = ln_range_degrees (ra);
 }
 
-Rts2QStar Rts2QVizier::getClosest(double ra, double dec)
+Rts2QStar* Rts2QVizier::getClosest(double ra, double dec)
 {
 	double dist = NAN;
-	auto found = stars.begin();
+	Rts2QStar *found = NULL;
 	struct ln_equ_posn orig;
 	orig.ra = ra;
 	orig.dec = dec;
@@ -140,11 +140,11 @@ Rts2QStar Rts2QVizier::getClosest(double ra, double dec)
 		double sd = ln_get_angular_separation(&orig, &spos);
 		if (sd < dist || std::isnan(dist))
 		{
-			found = si;
+			found = &(*si);
 			dist = sd;
 		}
 	}
-	return *(found);
+	return found;
 }
 
 bool Rts2QVizier::findStarName(QString name)
