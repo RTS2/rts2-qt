@@ -7,9 +7,6 @@ QFitsImage::QFitsImage()
 {
 	data = NULL;
 	image = NULL;
-
-	loadFITS("test.fits");
-	scaleData(400, 2000, LINEAR);
 }
 
 QFitsImage::~QFitsImage()

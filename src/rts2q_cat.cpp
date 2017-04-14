@@ -11,8 +11,6 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), 
 	ra = _ra;
 	dec = _dec;
 
-	panning = false;
-
 	background = QBrush(QColor(0,0,255));
 	origin = QBrush(QColor(255,0,0));
 	selected = QBrush(QColor(0,255,0));
@@ -22,6 +20,12 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget (parent), 
 	setMouseTracking(true);
 
 	viz.runQuery(ra,dec);
+
+	imgMin = 400;
+	imgMax = 2000;
+
+	fi.loadFITS("test.fits");
+	fi.scaleData(imgMin, imgMax, LINEAR);
 }
 
 void Rts2QCat::starAdded()
@@ -47,16 +51,27 @@ void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 {
 	struct ln_equ_posn pos;
 	viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
-	//qDebug() << event->x() << " " << event->y() << " ra " << pos.ra << " dec " << pos.dec;
-	if (panning)
+	qDebug() << event->x() << " " << event->y() << " b " << event->buttons() << " ra " << pos.ra << " dec " << pos.dec;
+	switch (event->buttons())
 	{
-		ra += (lastX - event->x()) / 3600.0;
-		dec += (lastY - event->y()) / 3600.0;
-		qDebug() << "new ra " << ra << " " << dec;
-		viz.runQuery(ra,dec);
+		case Qt::MidButton:
+			ra += (lastX - event->x()) / 3600.0;
+			dec += (lastY - event->y()) / 3600.0;
+			qDebug() << "new ra " << ra << " " << dec;
+			viz.runQuery(ra,dec);
 
-		lastX = event->x();
-		lastY = event->y();
+			lastX = event->x();
+			lastY = event->y();
+			break;
+
+		case Qt::LeftButton:
+			qDebug() << "left " << imgMin << " " << imgMax;
+			imgMin -= lastX - event->x();
+			imgMax += lastY - event->y();
+			qDebug() << "left2 " << imgMin << " " << imgMax;
+			fi.scaleData(imgMin, imgMax, LINEAR);
+			repaint();
+			break;
 	}
 }
 
@@ -86,12 +101,10 @@ void Rts2QCat::mousePressEvent(QMouseEvent *event)
 		}
 
 		case Qt::MidButton:
-		{
+		case Qt::LeftButton:
 			lastX = event->x();
 			lastY = event->y();
-			panning = true;
 			break;
-		}
 	}
 }
 
@@ -100,7 +113,6 @@ void Rts2QCat::mouseReleaseEvent(QMouseEvent *event)
 	switch (event->button())
 	{
 		case Qt::MidButton:
-			panning = false;
 			break;
 	}
 }

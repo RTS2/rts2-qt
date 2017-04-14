@@ -43,12 +43,13 @@ class Rts2QCat: public QWidget
 		void paintStars(QPainter *painter);
 		void paintAG(QPainter *painter);
 
+		uint16_t imgMin;
+		uint16_t imgMax;
+
 		QFitsImage fi;
 
 		int lastX;
 		int lastY;
-
-		bool panning;
 };
 
 #endif // __RTS2Q_CAT__
