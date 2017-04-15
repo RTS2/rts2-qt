@@ -8,6 +8,8 @@
 #include "rts2q_vizier.h"
 #include "rts2q_fits.h"
 
+#include "ui_histogramDialog.h"
+
 #include <QWidget>
 #include <QMenu>
 #include <QSpinBox>
@@ -57,8 +59,7 @@ class Rts2QCat: public QWidget
 
 		QMenu contextMenu;
 
-		QSpinBox minSpin;
-		QSpinBox maxSpin;
+		Ui_histogramDialog histogramDialog;
 };
 
 #endif // __RTS2Q_CAT__

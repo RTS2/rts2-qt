@@ -59,6 +59,11 @@ void QFitsImage::loadFITS(const char *fn)
 	}
 }
 
+/*void QFitsImage::exposeImage(const char *device)
+{
+
+}*/
+
 void QFitsImage::scaleData(float min, float max, ScaleType type)
 {
 	uint8_t line[naxes[0]];

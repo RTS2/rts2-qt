@@ -35,9 +35,6 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), c
 	fi.loadFITS("test.fits");
 	fi.scaleData(imgMin, imgMax, LINEAR);
 
-	minSpin.setRange(0,0xFFFF);
-	maxSpin.setRange(0,0xFFFF);
-
 	QAction *ma = new QAction(tr("&Histogram"), this);
 
 	contextMenu.addAction(ma);
@@ -54,42 +51,24 @@ void Rts2QCat::showHistogram()
 	QDialog *wind = new QDialog(this);
 	wind->setWindowTitle(tr("Histogram"));
 
-	QWidget *controlBox = new QWidget();
+	histogramDialog.setupUi(wind);
 
-	QGridLayout *controlLayout = new QGridLayout();
+	histogramDialog.minSpin->setValue(imgMin);
+	histogramDialog.maxSpin->setValue(imgMax);
 
-	controlLayout->addWidget(new QLabel(tr("Min:")),0,0);
-	controlLayout->addWidget(&minSpin,0,1);
-	controlLayout->addWidget(new QLabel(tr("Max:")),0,2);
-	controlLayout->addWidget(&maxSpin,0,3);
-
-	minSpin.setValue(imgMin);
-	maxSpin.setValue(imgMax);
-
-	controlBox->setLayout(controlLayout);
-
-	QVBoxLayout *mainBox = new QVBoxLayout();
-
-	mainBox->addWidget(controlBox);
-
-	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
-	mainBox->addWidget(buttonBox);
-
-	QPushButton* applyButton = buttonBox->button(QDialogButtonBox::Apply);
+	QPushButton* applyButton = histogramDialog.buttonBox->button(QDialogButtonBox::Apply);
 
 	connect(applyButton, SIGNAL(clicked()), this, SLOT(histogramApply()));
-
-	wind->setLayout(mainBox);
 
 	wind->show();
 }
 
 void Rts2QCat::histogramApply()
 {
-	imgMin = minSpin.value();
-	imgMax = maxSpin.value();
+	imgMin = histogramDialog.minSpin->value();
+	imgMax = histogramDialog.maxSpin->value();
 
-	fi.scaleData(minSpin.value(), maxSpin.value(), LINEAR);
+	fi.scaleData(imgMin, imgMax, LINEAR);
 
 	repaint();
 }
