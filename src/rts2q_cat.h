@@ -12,7 +12,6 @@
 
 #include <QWidget>
 #include <QMenu>
-#include <QSpinBox>
 
 class Rts2QCat: public QWidget
 {

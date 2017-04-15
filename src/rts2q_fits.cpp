@@ -1,13 +1,16 @@
 #include <QDebug>
+#include <QUrlQuery>
 
 #include "fitsio.h"
 
+#include "config.h"
 #include "rts2q_fits.h"
 
 QFitsImage::QFitsImage()
 {
 	data = NULL;
 	image = NULL;
+	imageReply = NULL;
 }
 
 QFitsImage::~QFitsImage()
@@ -59,10 +62,25 @@ void QFitsImage::loadFITS(const char *fn)
 	}
 }
 
-/*void QFitsImage::exposeImage(const char *device)
+void QFitsImage::exposeImage(const char *device)
 {
+	QUrl rurl(Config::getInstance().baseurl);
+	rurl.setPath("/api/exposedata");
 
-}*/
+	QUrlQuery query;
+	query.addQueryItem("ccd", device);
+	rurl.setQuery(query);
+
+	request.setUrl(rurl);
+
+	delete data;
+	delete image;
+
+	data = new uint16_t[200];
+
+	imageReply = Config::getInstance().networkManager.get(request);
+	connect(imageReply, SIGNAL(readyRead()), this, SLOT(imageReadyRead()));
+}
 
 void QFitsImage::scaleData(float min, float max, ScaleType type)
 {
@@ -101,6 +119,8 @@ void QFitsImage::drawImage(QPainter *painter, float x, float y)
 	painter->drawImage(x, y, *image);
 }
 
-void QFitsImage::showHistogram(QWidget *parent)
+void QFitsImage::imageReadyRead()
 {
+	qint64 rs = imageReply->read((char *) data, 200);
+	qDebug() << "data " << rs << " data " << QByteArray((char*) data, rs).toHex();
 }

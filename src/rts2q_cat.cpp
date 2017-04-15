@@ -32,8 +32,9 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), c
 	imgMin = 400;
 	imgMax = 2000;
 
-	fi.loadFITS("test.fits");
-	fi.scaleData(imgMin, imgMax, LINEAR);
+	fi.exposeImage("C0");
+//	fi.loadFITS("test.fits");
+//	fi.scaleData(imgMin, imgMax, LINEAR);
 
 	QAction *ma = new QAction(tr("&Histogram"), this);
 

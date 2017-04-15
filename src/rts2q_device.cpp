@@ -1,13 +1,13 @@
-#include "rts2q_device.h"
-
 #include <QUrlQuery>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 
-Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent),
-	baseurl("http://localhost:8889/")
+#include "rts2q_device.h"
+#include "config.h"
+
+Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent)
 {
 	thisdevice = devname;
 
@@ -24,12 +24,7 @@ Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent),
 
 	connect(m_button, SIGNAL(clicked()), this, SLOT(slotRefresh()));
 
-	baseurl.setHost("localhost");
-	baseurl.setPort(8889);
-	baseurl.setUserName("rts2test");
-	baseurl.setPassword("test");
-
-	QUrl rurl(baseurl);
+	QUrl rurl(Config::getInstance().baseurl);
 
 	rurl.setPath("/api/get");
 
@@ -38,18 +33,17 @@ Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent),
 	rurl.setQuery(query);
 
 	request.setUrl(rurl);
-
-	connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 }
 
 void Rts2QDevice::slotRefresh()
 {
-	networkManager.get(request);
+	reply = Config::getInstance().networkManager.get(request);
+	connect(reply, SIGNAL(finished()), this, SLOT(finished()));
 
 	m_button->setText(tr("Pushed"));
 }
 
-void Rts2QDevice::replyFinished(QNetworkReply *reply)
+void Rts2QDevice::finished()
 {
 	qDebug() << "reply errors" << reply->error();
 	if (reply->error() != QNetworkReply::NoError)
@@ -74,5 +68,4 @@ void Rts2QDevice::replyFinished(QNetworkReply *reply)
 		m_table->setItem(r, 1, new QTableWidgetItem(dArray[val].toString()));
 		r++;
 	};
-
 }

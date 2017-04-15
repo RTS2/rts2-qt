@@ -12,10 +12,8 @@
 #include <QTableWidget>
 #include <QPushButton>
 
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QHostAddress>
 
 class Rts2QDevice:public QWidget
 {
@@ -24,7 +22,7 @@ class Rts2QDevice:public QWidget
 		Rts2QDevice (QString devname, QWidget *parent = 0);
 	private slots:
 		void slotRefresh ();
-		void replyFinished(QNetworkReply *reply);
+		void finished();
 	private:
 		QString thisdevice;
 
@@ -34,10 +32,8 @@ class Rts2QDevice:public QWidget
 
 		QPushButton *m_button;
 
-		QNetworkAccessManager networkManager;
-		QHostAddress address;
-		QUrl baseurl;
 		QNetworkRequest request;
+		QNetworkReply* reply;
 };
 
 #endif //!__RTS2Q_DEVICE__
