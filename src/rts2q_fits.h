@@ -7,6 +7,8 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
+#include "imghdr.h"
+
 typedef enum {
 	LINEAR,
 	LOG
@@ -27,6 +29,7 @@ class QFitsImage:public QObject
 
 	protected slots:
 		void imageReadyRead();
+		void imageFinished();
 
 	private:
 		int bitpix;
@@ -38,4 +41,6 @@ class QFitsImage:public QObject
 
 		QNetworkRequest request;
 		QNetworkReply *imageReply;
+
+		qint64 receivedLen;
 };

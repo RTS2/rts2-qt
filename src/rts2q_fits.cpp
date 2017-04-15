@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QUrlQuery>
+#include <arpa/inet.h>
 
 #include "fitsio.h"
 
@@ -11,6 +12,8 @@ QFitsImage::QFitsImage()
 	data = NULL;
 	image = NULL;
 	imageReply = NULL;
+
+	receivedLen = 0;
 }
 
 QFitsImage::~QFitsImage()
@@ -75,11 +78,14 @@ void QFitsImage::exposeImage(const char *device)
 
 	delete data;
 	delete image;
+	receivedLen = 0;
 
-	data = new uint16_t[200];
+	data = new uint16_t[sizeof(imghdr) / 2];
+	image = NULL;
 
 	imageReply = Config::getInstance().networkManager.get(request);
 	connect(imageReply, SIGNAL(readyRead()), this, SLOT(imageReadyRead()));
+	connect(imageReply, SIGNAL(finished()), this, SLOT(imageFinished()));
 }
 
 void QFitsImage::scaleData(float min, float max, ScaleType type)
@@ -121,6 +127,38 @@ void QFitsImage::drawImage(QPainter *painter, float x, float y)
 
 void QFitsImage::imageReadyRead()
 {
-	qint64 rs = imageReply->read((char *) data, 200);
-	qDebug() << "data " << rs << " data " << QByteArray((char*) data, rs).toHex();
+	if (receivedLen < sizeof(imghdr))
+	{
+		qint64 rs = imageReply->read((char *) data + receivedLen, sizeof(imghdr) - receivedLen);
+		receivedLen += rs;
+		if (receivedLen <  sizeof(imghdr))
+			return;
+		imghdr *hdr = (imghdr *) data;
+		if (ntohs (hdr->naxes) != 2)
+		{
+			qDebug() << "QFitsImage::imageReadyRead unsuported naxes" << hdr->naxes;
+			imageReply->close();
+			imageReply->deleteLater();
+		}
+		naxes[0] = ntohl (hdr->sizes[0]);
+		naxes[1] = ntohl (hdr->sizes[1]);
+
+		qDebug() << QString("QFitsImage::imageReadyRead naxes %1x%2").arg(naxes[0]).arg(naxes[1]);
+
+		delete data;
+		data = new uint16_t[naxes[0] * naxes[1]];
+		image = new QImage(naxes[0], naxes[1], QImage::Format_Grayscale8);
+	}
+
+	if (receivedLen >= sizeof(imghdr))
+	{
+		qint64 rs = imageReply->read((char *) data + receivedLen, naxes[0] * naxes[1] * 2 - (receivedLen - sizeof(imghdr)));
+		receivedLen += rs;
+	}
+}
+
+void QFitsImage::imageFinished()
+{
+	scaleData(200,1500,LINEAR);
+	imageReply->deleteLater();
 }
