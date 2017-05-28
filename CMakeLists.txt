@@ -13,6 +13,8 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 find_package(Qt5Xml)
+find_package(Qt5PrintSupport)
+find_package(QCustomPlot)
 find_library(NOVA nova)
 
 add_subdirectory(src)
