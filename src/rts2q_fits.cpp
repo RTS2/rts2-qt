@@ -90,6 +90,9 @@ void QFitsImage::exposeImage(const char *device)
 
 void QFitsImage::scaleData(float min, float max, ScaleType type)
 {
+	if (data == NULL)
+		return;
+
 	uint8_t line[naxes[0]];
 
 	uint16_t *pp = data;
