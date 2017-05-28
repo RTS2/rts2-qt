@@ -15,11 +15,11 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-class Rts2QDevice:public QWidget
+class QRDevice:public QWidget
 {
 	Q_OBJECT
 	public:
-		Rts2QDevice (QString devname, QWidget *parent = 0);
+		QRDevice (QString devname, QWidget *parent = 0);
 	private slots:
 		void slotRefresh ();
 		void finished();

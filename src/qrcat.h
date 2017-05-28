@@ -5,19 +5,19 @@
 #ifndef __RTS2Q_CAT__
 #define __RTS2Q_CAT__
 
-#include "rts2q_vizier.h"
-#include "rts2q_fits.h"
+#include "qrvizier.h"
+#include "qrfits.h"
 
 #include "ui_histogramDialog.h"
 
 #include <QWidget>
 #include <QMenu>
 
-class Rts2QCat: public QWidget
+class QRCat: public QWidget
 {
 	Q_OBJECT
 	public:
-		Rts2QCat(double ra, double dec, QWidget *parent = 0);
+		QRCat(double ra, double dec, QWidget *parent = 0);
 
 	protected slots:
 		void starAdded();
@@ -40,8 +40,8 @@ class Rts2QCat: public QWidget
 		QBrush origin;
 		QBrush selected;
 
-		Rts2QConditions conditions;
-		Rts2QVizier viz;
+		QRConditions conditions;
+		QRVizier viz;
 
 		QVector <QString> selectedStars;
 
@@ -51,7 +51,7 @@ class Rts2QCat: public QWidget
 		uint16_t imgMin;
 		uint16_t imgMax;
 
-		QFitsImage fi;
+		QRFits fi;
 
 		int lastX;
 		int lastY;

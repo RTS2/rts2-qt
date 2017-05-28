@@ -5,9 +5,9 @@
 #include "fitsio.h"
 
 #include "config.h"
-#include "rts2q_fits.h"
+#include "qrfits.h"
 
-QFitsImage::QFitsImage()
+QRFits::QRFits()
 {
 	data = NULL;
 	image = NULL;
@@ -16,13 +16,13 @@ QFitsImage::QFitsImage()
 	receivedLen = 0;
 }
 
-QFitsImage::~QFitsImage()
+QRFits::~QRFits()
 {
 	delete image;
 	delete[] data;
 }
 
-void QFitsImage::loadFITS(const char *fn)
+void QRFits::loadFITS(const char *fn)
 {
 	fitsfile *fptr;
 	int status = 0;
@@ -35,13 +35,13 @@ void QFitsImage::loadFITS(const char *fn)
 	if (status != 0)
 	{
 		fits_get_errstatus(status, err_text);
-		qDebug() << "QFitsImage::loadFITS opening FITS file failed:" << err_text;
+		qDebug() << "QRFits::loadFITS opening FITS file failed:" << err_text;
 		return;
 	}
 
 	if (naxis != 2)
 	{
-		qDebug() << "QFitsImage::loadFITS unable to handle non 2D images";
+		qDebug() << "QRFits::loadFITS unable to handle non 2D images";
 		return;
 	}
 
@@ -60,12 +60,12 @@ void QFitsImage::loadFITS(const char *fn)
 	if (status != 0)
 	{
 		fits_get_errstatus(status, err_text);
-		qDebug() << "QFitsImage::loadFITS reading image failed:" << err_text;
+		qDebug() << "QRFits::loadFITS reading image failed:" << err_text;
 		return;
 	}
 }
 
-void QFitsImage::exposeImage(const char *device)
+void QRFits::exposeImage(const char *device)
 {
 	QUrl rurl(Config::getInstance().baseurl);
 	rurl.setPath("/api/exposedata");
@@ -88,7 +88,7 @@ void QFitsImage::exposeImage(const char *device)
 	connect(imageReply, SIGNAL(finished()), this, SLOT(imageFinished()));
 }
 
-void QFitsImage::scaleData(float min, float max, ScaleType type)
+void QRFits::scaleData(float min, float max, ScaleType type)
 {
 	if (data == NULL)
 		return;
@@ -118,17 +118,17 @@ void QFitsImage::scaleData(float min, float max, ScaleType type)
 	}
 }
 
-void QFitsImage::drawImage(QPainter *painter, float x, float y)
+void QRFits::drawImage(QPainter *painter, float x, float y)
 {
 	if (image == NULL)
 	{
-		qWarning() << "QFitsImage::drawImage image not loaded";
+		qWarning() << "QRFits::drawImage image not loaded";
 		return;
 	}
 	painter->drawImage(x, y, *image);
 }
 
-void QFitsImage::imageReadyRead()
+void QRFits::imageReadyRead()
 {
 	if (receivedLen < sizeof(imghdr))
 	{
@@ -139,14 +139,14 @@ void QFitsImage::imageReadyRead()
 		imghdr *hdr = (imghdr *) data;
 		if (ntohs (hdr->naxes) != 2)
 		{
-			qDebug() << "QFitsImage::imageReadyRead unsuported naxes" << hdr->naxes;
+			qDebug() << "QRFits::imageReadyRead unsuported naxes" << hdr->naxes;
 			imageReply->close();
 			imageReply->deleteLater();
 		}
 		naxes[0] = ntohl (hdr->sizes[0]);
 		naxes[1] = ntohl (hdr->sizes[1]);
 
-		qDebug() << QString("QFitsImage::imageReadyRead naxes %1x%2").arg(naxes[0]).arg(naxes[1]);
+		qDebug() << QString("QRFits::imageReadyRead naxes %1x%2").arg(naxes[0]).arg(naxes[1]);
 
 		delete data;
 		data = new uint16_t[naxes[0] * naxes[1]];
@@ -160,7 +160,7 @@ void QFitsImage::imageReadyRead()
 	}
 }
 
-void QFitsImage::imageFinished()
+void QRFits::imageFinished()
 {
 	scaleData(200,1500,LINEAR);
 	imageReply->deleteLater();

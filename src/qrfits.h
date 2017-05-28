@@ -14,12 +14,12 @@ typedef enum {
 	LOG
 } ScaleType;
 
-class QFitsImage:public QObject
+class QRFits:public QObject
 {
 	Q_OBJECT
 	public:
-		QFitsImage();
-		~QFitsImage();
+		QRFits();
+		~QRFits();
 
 		void loadFITS(const char *fn);
 		void exposeImage(const char *device);

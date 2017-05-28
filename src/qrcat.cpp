@@ -13,9 +13,9 @@
 
 #include <libnova/libnova.h>
 
-#include "rts2q_cat.h"
+#include "qrcat.h"
 
-Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), conditions(_ra, _dec), contextMenu(this)
+QRCat::QRCat(double _ra, double _dec, QWidget *parent): QWidget(parent), conditions(_ra, _dec), contextMenu(this)
 {
 	ra = _ra;
 	dec = _dec;
@@ -24,7 +24,7 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), c
 	origin = QBrush(QColor(255,0,0));
 	selected = QBrush(QColor(0,255,0));
 
-	connect(&viz, &Rts2QVizier::starAdded, this, &Rts2QCat::starAdded);
+	connect(&viz, &QRVizier::starAdded, this, &QRCat::starAdded);
 
 	setMouseTracking(true);
 
@@ -40,15 +40,15 @@ Rts2QCat::Rts2QCat(double _ra, double _dec, QWidget *parent): QWidget(parent), c
 	QAction *ma = new QAction(tr("&Histogram"), this);
 
 	contextMenu.addAction(ma);
-	connect(ma, &QAction::triggered, this, &Rts2QCat::showHistogram);
+	connect(ma, &QAction::triggered, this, &QRCat::showHistogram);
 }
 
-void Rts2QCat::starAdded()
+void QRCat::starAdded()
 {
 	repaint();
 }
 
-void Rts2QCat::showHistogram()
+void QRCat::showHistogram()
 {
 	QDialog *wind = new QDialog(this);
 	wind->setWindowTitle(tr("Histogram"));
@@ -79,7 +79,7 @@ void Rts2QCat::showHistogram()
 	wind->show();
 }
 
-void Rts2QCat::histogramApply()
+void QRCat::histogramApply()
 {
 	imgMin = histogramDialog.minSpin->value();
 	imgMax = histogramDialog.maxSpin->value();
@@ -89,7 +89,7 @@ void Rts2QCat::histogramApply()
 	repaint();
 }
 
-void Rts2QCat::paintEvent(QPaintEvent *event)
+void QRCat::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 
@@ -103,7 +103,7 @@ void Rts2QCat::paintEvent(QPaintEvent *event)
 	QWidget::paintEvent(event);
 }
 
-void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
+void QRCat::mouseMoveEvent(QMouseEvent *event)
 {
 	struct ln_equ_posn pos;
 	viz.inverseAzimuthalEqualArea(&conditions, event->x() - 300, event->y() - 300, pos.ra, pos.dec);
@@ -131,7 +131,7 @@ void Rts2QCat::mouseMoveEvent(QMouseEvent *event)
 	}
 }
 
-void Rts2QCat::mousePressEvent(QMouseEvent *event)
+void QRCat::mousePressEvent(QMouseEvent *event)
 {
 	switch (event->button())
 	{
@@ -151,7 +151,7 @@ void Rts2QCat::mousePressEvent(QMouseEvent *event)
 	}
 }
 
-void Rts2QCat::mouseReleaseEvent(QMouseEvent *event)
+void QRCat::mouseReleaseEvent(QMouseEvent *event)
 {
 	switch (event->button())
 	{
@@ -160,13 +160,13 @@ void Rts2QCat::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
-void Rts2QCat::wheelEvent(QWheelEvent *event)
+void QRCat::wheelEvent(QWheelEvent *event)
 {
 	conditions.changeScale(event->delta() * 100);
 	repaint();
 }
 
-void Rts2QCat::keyPressEvent(QKeyEvent *event)
+void QRCat::keyPressEvent(QKeyEvent *event)
 {
 	switch (event->key())
 	{
@@ -181,7 +181,7 @@ void Rts2QCat::keyPressEvent(QKeyEvent *event)
 	}
 }
 
-void Rts2QCat::paintStars(QPainter *painter)
+void QRCat::paintStars(QPainter *painter)
 {
 	painter->setPen(QColor(255,0,0));
 
@@ -202,7 +202,7 @@ void Rts2QCat::paintStars(QPainter *painter)
 	}
 }
 
-void Rts2QCat::paintAG(QPainter *painter)
+void QRCat::paintAG(QPainter *painter)
 {
 	int cx = 300;
 	int cy = 300;

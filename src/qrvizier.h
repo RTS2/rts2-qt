@@ -11,10 +11,10 @@
 
 #define MAX_LINE  200
 
-class Rts2QConditions
+class QRConditions
 {
 	public:
-		Rts2QConditions (double _ra0, double _dec0);
+		QRConditions (double _ra0, double _dec0);
 
 		double ra0;
 		double dec0;
@@ -28,13 +28,13 @@ class Rts2QConditions
 
 };
 
-class Rts2QStar
+class QRStar
 {
 	public:
-		Rts2QStar ();
-		Rts2QStar (QString _name, double _ra, double _dec, float _mag);
+		QRStar ();
+		QRStar (QString _name, double _ra, double _dec, float _mag);
 
-		void azimuthalEqualArea (Rts2QConditions *conditions, double &x, double &y);
+		void azimuthalEqualArea (QRConditions *conditions, double &x, double &y);
 
 		QString name;
 		double ra;
@@ -42,18 +42,18 @@ class Rts2QStar
 		float mag;
 };
 
-class Rts2QVizier:public QObject
+class QRVizier:public QObject
 {
 	Q_OBJECT
 	public:
-		Rts2QVizier ();
+		QRVizier ();
 
 		void runQuery(double ra, double dec);
 
-		QVector <Rts2QStar> stars;
+		QVector <QRStar> stars;
 
-		void inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec);
-		Rts2QStar* getClosest(double x, double y);
+		void inverseAzimuthalEqualArea(QRConditions *conditions, double x, double y, double &ra, double &dec);
+		QRStar* getClosest(double x, double y);
 
 		bool findStarName(QString name);
 

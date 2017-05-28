@@ -4,10 +4,10 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 
-#include "rts2q_device.h"
+#include "qrdevice.h"
 #include "config.h"
 
-Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent)
+QRDevice::QRDevice (QString devname, QWidget *parent):QWidget (parent)
 {
 	thisdevice = devname;
 
@@ -35,7 +35,7 @@ Rts2QDevice::Rts2QDevice (QString devname, QWidget *parent):QWidget (parent)
 	request.setUrl(rurl);
 }
 
-void Rts2QDevice::slotRefresh()
+void QRDevice::slotRefresh()
 {
 	reply = Config::getInstance().networkManager.get(request);
 	connect(reply, SIGNAL(finished()), this, SLOT(finished()));
@@ -43,7 +43,7 @@ void Rts2QDevice::slotRefresh()
 	m_button->setText(tr("Pushed"));
 }
 
-void Rts2QDevice::finished()
+void QRDevice::finished()
 {
 	qDebug() << "reply errors" << reply->error();
 	if (reply->error() != QNetworkReply::NoError)

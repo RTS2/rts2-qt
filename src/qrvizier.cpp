@@ -1,4 +1,4 @@
-#include "rts2q_vizier.h"
+#include "qrvizier.h"
 
 #include <QUrlQuery>
 #include <QLocale>
@@ -6,7 +6,7 @@
 #include <libnova/libnova.h>
 #include <math.h>
 
-Rts2QConditions::Rts2QConditions (double _ra0, double _dec0)
+QRConditions::QRConditions (double _ra0, double _dec0)
 {
 	ra0 = _ra0;
 	dec0 = _dec0;
@@ -17,7 +17,7 @@ Rts2QConditions::Rts2QConditions (double _ra0, double _dec0)
 	scale = 20 * 3600;
 }
 
-Rts2QStar::Rts2QStar()
+QRStar::QRStar()
 {
 	name = QString();
 	ra = NAN;
@@ -25,14 +25,14 @@ Rts2QStar::Rts2QStar()
 	mag = NAN;
 }
 
-Rts2QStar::Rts2QStar(QString _name, double _ra, double _dec, float _mag) : name(_name)
+QRStar::QRStar(QString _name, double _ra, double _dec, float _mag) : name(_name)
 {
 	ra = _ra;
 	dec = _dec;
 	mag = _mag;
 }
 
-void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double &x, double &y)
+void QRStar::azimuthalEqualArea(QRConditions *conditions, double &x, double &y)
 {
 	double kp, phi, lam, rho;
   
@@ -63,13 +63,13 @@ void Rts2QStar::azimuthalEqualArea(Rts2QConditions *conditions, double &x, doubl
 	}
 }
 
-Rts2QVizier::Rts2QVizier():QObject(), baseurl("http://vizier.u-strasbg.fr/viz-bin/asu-txt")
+QRVizier::QRVizier():QObject(), baseurl("http://vizier.u-strasbg.fr/viz-bin/asu-txt")
 {
 	reply = NULL;
 	lineStart = lineData;
 }
 
-void Rts2QVizier::runQuery(double ra, double dec)
+void QRVizier::runQuery(double ra, double dec)
 {
 	if (reply)
 		return;
@@ -95,7 +95,7 @@ void Rts2QVizier::runQuery(double ra, double dec)
 	connect(reply, SIGNAL(finished()), this, SLOT(replyFinished()));
 }
 
-void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double x, double y, double &ra, double &dec)
+void QRVizier::inverseAzimuthalEqualArea(QRConditions *conditions, double x, double y, double &ra, double &dec)
 {
 	double phi, lam, rho, c;
 
@@ -125,10 +125,10 @@ void Rts2QVizier::inverseAzimuthalEqualArea(Rts2QConditions *conditions, double 
 	ra = ln_range_degrees (ra);
 }
 
-Rts2QStar* Rts2QVizier::getClosest(double ra, double dec)
+QRStar* QRVizier::getClosest(double ra, double dec)
 {
 	double dist = NAN;
-	Rts2QStar *found = NULL;
+	QRStar *found = NULL;
 	struct ln_equ_posn orig;
 	orig.ra = ra;
 	orig.dec = dec;
@@ -147,7 +147,7 @@ Rts2QStar* Rts2QVizier::getClosest(double ra, double dec)
 	return found;
 }
 
-bool Rts2QVizier::findStarName(QString name)
+bool QRVizier::findStarName(QString name)
 {
 	for (auto it = stars.begin(); it != stars.end(); it++)
 	{
@@ -157,12 +157,12 @@ bool Rts2QVizier::findStarName(QString name)
 	return false;
 }
 
-void Rts2QVizier::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+void QRVizier::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
 	qDebug() << bytesReceived << "/" << bytesTotal;
 }
 
-void Rts2QVizier::readyRead()
+void QRVizier::readyRead()
 {
 	while(true)
 	{
@@ -184,7 +184,7 @@ void Rts2QVizier::readyRead()
 	}
 }
 
-void Rts2QVizier::replyFinished()
+void QRVizier::replyFinished()
 {
 	qDebug() << "Vizier reply errors" << reply->error();
 
@@ -194,7 +194,7 @@ void Rts2QVizier::replyFinished()
 	reply = NULL;
 }
 
-void Rts2QVizier::processLine()
+void QRVizier::processLine()
 {
 	if (lineStart[-1] == '\n')
 		lineStart[-1] = '\0';
@@ -273,7 +273,7 @@ void Rts2QVizier::processLine()
 		QString name = lineData;
 		if (findStarName(name) == false)
 		{
-			Rts2QStar star(lineData, loc.toDouble(lineData + collIndex[0] + 1, &ok), loc.toDouble(lineData + collIndex[1] + 1), m);
+			QRStar star(lineData, loc.toDouble(lineData + collIndex[0] + 1, &ok), loc.toDouble(lineData + collIndex[1] + 1), m);
 			qDebug() << "star ra " << star.ra << " dec " << star.dec << " mag " << m;
 
 			stars.append(star);
