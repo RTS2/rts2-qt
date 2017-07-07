@@ -19,10 +19,12 @@ class QRDevice:public QWidget
 {
 	Q_OBJECT
 	public:
-		QRDevice (QString devname, QWidget *parent = 0);
+		QRDevice(QString devname, QWidget *parent = 0);
+
 	private slots:
-		void slotRefresh ();
-		void finished();
+		void slotRefresh();
+		void rts2Updated(QJsonDocument &doc);
+
 	private:
 		QString thisdevice;
 
@@ -31,9 +33,6 @@ class QRDevice:public QWidget
 		QTableWidget *m_table;
 
 		QPushButton *m_button;
-
-		QNetworkRequest request;
-		QNetworkReply* reply;
 };
 
 #endif //!__RTS2Q_DEVICE__

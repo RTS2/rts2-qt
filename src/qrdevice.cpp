@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 
+#include "qrapp.h"
 #include "qrdevice.h"
 #include "config.h"
 
@@ -23,43 +24,22 @@ QRDevice::QRDevice (QString devname, QWidget *parent):QWidget (parent)
 	m_layout->addWidget(m_button);
 
 	connect(m_button, SIGNAL(clicked()), this, SLOT(slotRefresh()));
-
-	QUrl rurl(Config::getInstance().baseurl);
-
-	rurl.setPath("/api/get");
-
-	QUrlQuery query;
-	query.addQueryItem("d", devname);
-	rurl.setQuery(query);
-
-	request.setUrl(rurl);
+	connect(&QRApp::getInstance(), &QRApp::rts2Updated, this, &QRDevice::rts2Updated);
 }
 
 void QRDevice::slotRefresh()
 {
-	reply = Config::getInstance().networkManager.get(request);
-	connect(reply, SIGNAL(finished()), this, SLOT(finished()));
-
+	QRApp::getInstance().rts2Update();
 	m_button->setText(tr("Pushed"));
 }
 
-void QRDevice::finished()
+void QRDevice::rts2Updated(QJsonDocument &doc)
 {
-	qDebug() << "reply errors" << reply->error();
-	if (reply->error() != QNetworkReply::NoError)
-		return;
-
-	m_button->setText("--");
-
-	QByteArray data = reply->readAll();
-	qDebug() << "RTS2 device " << thisdevice << " data:" << (QString) data;
-
-	QJsonDocument doc;
 	QJsonParseError jsonError;
-	doc = QJsonDocument::fromJson(data, &jsonError);
 
 	QJsonObject docObject = doc.object();
-	QJsonObject dArray = docObject["d"].toObject();
+	QJsonObject devArray = docObject["centrald"].toObject();
+	QJsonObject dArray = devArray["d"].toObject();
 	int r = 0;
 	foreach (const QString & val, dArray.keys())
 	{

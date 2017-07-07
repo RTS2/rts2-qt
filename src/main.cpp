@@ -1,13 +1,15 @@
 #include <QApplication>
 #include <QNetworkAccessManager>
 
+#include "qrapp.h"
 #include "qrcat.h"
 #include "qrdevice.h"
 #include "config.h"
  
 int main(int argc, char **argv)
 {
-	QApplication app (argc, argv);
+	QApplication app(argc, argv);
+	QRApp *qapp = new QRApp();
 
 	Config* config = new Config("http://localhost:8889", "rts2test", "test");
 
