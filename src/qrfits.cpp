@@ -162,6 +162,11 @@ void QRFits::imageReadyRead()
 
 void QRFits::imageFinished()
 {
+	if (imageReply->error() != QNetworkReply::NoError)
+	{
+		qCritical() << "cannot retrieve image: " << imageReply->errorString();
+		return;
+	}
 	scaleData(200,1500,LINEAR);
 	imageReply->deleteLater();
 }

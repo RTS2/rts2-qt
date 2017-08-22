@@ -25,7 +25,10 @@ void QRApp::rts2Update()
 void QRApp::finished()
 {
 	if (reply->error() != QNetworkReply::NoError)
+	{
+		qCritical() << "cannot recieve JSON reply: " << reply->errorString();
 		return;
+	}
 	QByteArray data = reply->readAll();
 
 	QJsonDocument doc;
