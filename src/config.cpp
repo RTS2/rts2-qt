@@ -2,7 +2,7 @@
 
 Config* Config::singleton = NULL;
 
-Config::Config(const char *url, const char *login, const char *password): baseurl(url)
+Config::Config(const QString &url, const QString &login, const QString &password): baseurl(url)
 {
 	Q_ASSERT(!singleton);
 	singleton = this;

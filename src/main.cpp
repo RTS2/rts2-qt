@@ -4,24 +4,34 @@
 #include "qrapp.h"
 #include "qrcat.h"
 #include "qrdevice.h"
+#include "qrlogin.h"
 #include "config.h"
  
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
-	QApplication app(argc, argv);
-	QRApp *qapp = new QRApp();
+    QApplication app(argc, argv);
+    QRApp *qapp = new QRApp();
 
-	Config* config = new Config("http://localhost:8889", "rts2test", "test");
+    QRLogin *qlogin = new QRLogin();
+    int ret = qlogin->exec();
 
-	QRDevice dev("T0");
-	dev.show();
+    if (ret == QDialog::Rejected)
+    {
+	return 1;
+    }
 
-	QRCat cat(300,0);
-	cat.show();
+    Config* config = new Config(qlogin->getServer(), qlogin->getLogin(), qlogin->getPassword());
+
+    QRDevice dev("T0");
+    dev.show();
+
+    QRCat cat(300,0);
+    cat.show();
  
-	int ret = app.exec();
+    ret = app.exec();
 
-	delete config;
+    delete config;
 
-	return ret;
+    return ret;
 }
