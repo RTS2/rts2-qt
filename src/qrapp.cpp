@@ -37,7 +37,7 @@ QRApp::finished()
     QJsonDocument doc;
     QJsonParseError jsonError;
 
-    qDebug() << "data " << data;
+    //qDebug() << "data " << data;
 
     doc = QJsonDocument::fromJson(data, &jsonError);
 
