@@ -10,37 +10,38 @@
 #include "imghdr.h"
 
 typedef enum {
-	LINEAR,
-	LOG
+    LINEAR,
+    LOG
 } ScaleType;
 
 class QRFits:public QObject
 {
-	Q_OBJECT
-	public:
-		QRFits();
-		~QRFits();
+Q_OBJECT
 
-		void loadFITS(const char *fn);
-		void exposeImage(const char *device);
-		void scaleData(float min, float max, ScaleType type);
+public:
+    QRFits();
+    ~QRFits();
 
-		void drawImage(QPainter *painter, float x, float y);
+    void loadFITS(const char *fn);
+    void exposeImage(const char *device);
+    void scaleData(float min, float max, ScaleType type);
 
-	protected slots:
-		void imageReadyRead();
-		void imageFinished();
+    void drawImage(QPainter *painter, float x, float y);
 
-	private:
-		int bitpix;
-		int naxis;
-		long naxes[5];
+protected slots:
+    void imageReadyRead();
+    void imageFinished();
 
-		uint16_t *data;
-		QImage *image;
+private:
+    int bitpix;
+    int naxis;
+    long naxes[5];
 
-		QNetworkRequest request;
-		QNetworkReply *imageReply;
+    uint16_t *data;
+    QImage *image;
 
-		qint64 receivedLen;
+    QNetworkRequest request;
+    QNetworkReply *imageReply;
+
+    qint64 receivedLen;
 };

@@ -17,22 +17,22 @@
 
 class QRDevice:public QWidget
 {
-	Q_OBJECT
-	public:
-		QRDevice(QString devname, QWidget *parent = 0);
+Q_OBJECT
+public:
+    QRDevice(QString devname, QWidget *parent=0);
 
-	private slots:
-		void slotRefresh();
-		void rts2Updated(QJsonDocument &doc);
+private slots:
+    void slotRefresh();
+    void rts2Updated(QJsonDocument &doc);
 
-	private:
-		QString thisdevice;
+private:
+    QString thisdevice;
 
-		QVBoxLayout *m_layout;
+    QVBoxLayout *m_layout;
 
-		QTableWidget *m_table;
+    QTableWidget *m_table;
 
-		QPushButton *m_button;
+    QPushButton *m_button;
 };
 
 #endif //!__RTS2Q_DEVICE__
