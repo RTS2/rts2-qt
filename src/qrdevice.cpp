@@ -11,6 +11,7 @@
 QRDevice::QRDevice (QString devname, QWidget *parent):QWidget (parent)
 {
     thisdevice = devname;
+    setWindowTitle(thisdevice);
 
     m_layout = new QVBoxLayout(this);
 
