@@ -23,6 +23,8 @@ main(int argc, char **argv)
 
     Config* config = new Config(qlogin->getServer(), qlogin->getLogin(), qlogin->getPassword());
 
+    delete qlogin;
+
     QRDevice dev("T0");
     dev.show();
 
@@ -32,6 +34,7 @@ main(int argc, char **argv)
     ret = app.exec();
 
     delete config;
+    delete qapp;
 
     return ret;
 }
