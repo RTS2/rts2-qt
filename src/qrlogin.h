@@ -28,10 +28,12 @@ private:
 
     void load();
     void save();
+    void remove();
 
 private slots:
     void currentIndexChanged(int index);
     void accepted();
+    void deleteClicked();
 };
 
 #endif // QRLOGIN_H
