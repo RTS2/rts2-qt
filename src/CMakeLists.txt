@@ -4,6 +4,7 @@ QT5_WRAP_UI(RTS2_UIS_H histogramDialog.ui loginDialog.ui)
 add_executable(rts2-qt main.cpp config.cpp config.h qrdevice.cpp qrdevice.h 
 	qrcat.cpp qrcat.h qrvizier.cpp qrvizier.h qrfits.cpp qrfits.h imghdr.h 
 	qrplot.cpp qrplot.h qrapp.cpp qrapp.h qrlogin.cpp qrlogin.h
+	qrwidget.cpp qrwidget.h
 	${RTS2_UIS_H}
 )
 
