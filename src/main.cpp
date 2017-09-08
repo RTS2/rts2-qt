@@ -49,8 +49,6 @@ main(int argc, char **argv)
 
     Q_ASSERT(xml.readNextStartElement());
 
-    qDebug() << "name " << xml.name();
-
     Q_ASSERT(xml.isStartElement() && xml.name() == "rtsform");
 
     QHBoxLayout l;

@@ -7,6 +7,7 @@
 
 #include "qrwidget.h"
 #include "qrapp.h"
+#include "qrtelescope.h"
 
 QRLineEdit::QRLineEdit(const QString &_device, const QString &_var, QWidget *parent) :
     QLineEdit(parent),
@@ -33,12 +34,16 @@ QRWidget::QRWidget(QXmlStreamReader *xml)
     int i = 0;
 
     while (xml->readNextStartElement()) {
-        qDebug() << "  name " << xml->name() << "." << xml->attributes().value("device").toString();
         if (xml->name() == "edit")
 	   layout->addWidget(new QRLineEdit(
 	       xml->attributes().value("device").toString(),
 	       xml->attributes().value("var").toString(),
 	       this
+	   ), i, 0);
+	
+	else if (xml->name() == "telescope")
+	   layout->addWidget(new QRTelescope(
+	       xml->attributes().value("device").toString()
 	   ), i, 0);
 
 	xml->skipCurrentElement();

@@ -24,6 +24,12 @@ class QRApp:public QObject
 
 		static QRApp& getInstance() {Q_ASSERT(singleton); return *singleton;}
 		void rts2Update();
+		void rts2Command(const QString &device, const QString &command);
+		virtual void rts2SetValue(const QString &device, const QString &name, const QString &value);
+		virtual void rts2SetValue(const QString &device, const QString &name, const double v1, const double v2);
+
+		virtual void rts2IncValue(const QString &device, const QString &name, const QString &value);
+		virtual void rts2IncValue(const QString &device, const QString &name, const double v1, const double v2);
 
 	signals:
 		void rts2Updated(QJsonDocument &doc);
@@ -32,6 +38,7 @@ class QRApp:public QObject
 		void finished();
 
 	private:
+		virtual void rts2SetValue(const QString &op, const QString &device, const QString &name, const QString &value);
 
 		static QRApp* singleton;
 

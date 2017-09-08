@@ -1,4 +1,5 @@
 <rtsform>
+   <telescope device="T0"/>
    <edit device="C0" var="infotime"/>
    <edit device="T0" var="infotime"/>
 </rtsform>
