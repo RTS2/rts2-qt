@@ -25,6 +25,7 @@ private slots:
     void buttonDownClicked();
     void buttonLeftClicked();
     void buttonRightClicked();
+    void buttonStopClicked();
 };
 
 #endif
