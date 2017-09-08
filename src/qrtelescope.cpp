@@ -18,8 +18,8 @@ QRTelescope::QRTelescope(const QString &_telescope, QWidget *parent) :
     raDec = new QLCDNumber();
     mainLayout->addWidget(raDec);
 
-    raDec->setDigitCount(22);
-    raDec->display("00:00:00.00 +00'00:00.0");
+    raDec->setDigitCount(24);
+    raDec->display("00:00:00.000 +00'00:00.00");
 
     gridLayout = new QGridLayout(this);
 
@@ -117,11 +117,11 @@ QRTelescope::rts2Updated(QJsonDocument &doc)
     ln_equ_to_hequ(&telPos, &rdv);
 
     raDec->display(QString("%1:%2:%3 %4'%5:%6")
-       .arg(rdv.ra.hours)
-       .arg(rdv.ra.minutes)
-       .arg(rdv.ra.seconds)
-       .arg(rdv.dec.degrees)
-       .arg(rdv.dec.minutes)
-       .arg(rdv.dec.seconds)
+       .arg((short int) rdv.ra.hours, 2, 10, QLatin1Char('0'))
+       .arg((short int) rdv.ra.minutes, 2, 10, QLatin1Char('0'))
+       .arg(rdv.ra.seconds, 2, 'g', 3, QLatin1Char('0'))
+       .arg((short int) rdv.dec.degrees, 2, 10, QLatin1Char('0'))
+       .arg((short int) rdv.dec.minutes, 2, 10, QLatin1Char('0'))
+       .arg(rdv.dec.seconds, 2, 'g', 2, QLatin1Char('0'))
     );
 }
