@@ -4,6 +4,8 @@
 #include <QToolButton>
 #include <QWidget>
 #include <QGridLayout>
+#include <QVBoxLayout>
+#include <QLCDNumber>
 
 /**
  * Display telescope widget
@@ -17,7 +19,11 @@ public:
     ~QRTelescope();
 
 private:
+    QVBoxLayout *mainLayout;
     QGridLayout *gridLayout;
+
+    QLCDNumber *raDec;
+
     QString telescope;
 
 private slots:
@@ -26,6 +32,8 @@ private slots:
     void buttonLeftClicked();
     void buttonRightClicked();
     void buttonStopClicked();
+
+    void rts2Updated(QJsonDocument &doc);
 };
 
 #endif
